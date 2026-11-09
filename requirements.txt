@@ -1,0 +1,18 @@
+# Proyecto Final · Ciencia de Datos, Sección A · Segundo semestre 2026
+# Python 3.14 (probado con 3.14.6)
+#
+#   python3 -m venv .venv
+#   source .venv/bin/activate
+#   pip install -r requirements.txt
+
+numpy==2.5.1
+pandas==3.0.5
+matplotlib==3.11.1
+seaborn==0.13.2
+scikit-learn==1.9.0
+
+# El dataset de UCI viene en .xls (Excel 97); pandas lo lee con xlrd
+xlrd==2.0.2
+
+# Kernel de Jupyter para correr el notebook desde VS Code
+ipykernel==7.3.0
