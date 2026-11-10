@@ -63,10 +63,18 @@ nuestros y no cifras del banco.
 .
 ├── data/
 │   ├── raw/          # dataset original de UCI, sin modificar
+│   ├── processed/    # train.csv (24,000) y test.csv (6,000), limpios; los genera el notebook 01
 │   └── README.md     # procedencia y primera revisión
 ├── docs/
 │   ├── Enunciado.pdf
-│   └── Propuesta.pdf # propuesta aprobada
+│   ├── Propuesta.pdf # propuesta aprobada
+│   └── bitacora.md   # colaboración con AI: qué se preguntó, usó, verificó y descartó
+├── figures/          # gráficas para las diapositivas
+├── notebooks/
+│   └── 01_framing_datos_eda.ipynb   # fase 1: framing, costos, limpieza, split y EDA
+├── src/
+│   ├── datos.py      # carga, limpieza y split (las mismas reglas para todas las fases)
+│   └── costos.py     # supuestos de costo, umbrales y costo de una política
 ├── requirements.txt
 └── README.md
 ```
@@ -84,3 +92,21 @@ pip install -r requirements.txt
 ```
 
 Los datos vienen incluidos en el repositorio, así que no hay que descargar nada aparte.
+
+Para regenerar los datos procesados y las figuras de la fase 1, abrir
+`notebooks/01_framing_datos_eda.ipynb` con el kernel de `.venv` y correr todo.
+
+## Estado y siguiente paso
+
+| Parte | Estado |
+|---|---|
+| 1. Framing y costos de los errores | Hecho en el notebook 01 (sección 1). Los costos son supuestos y se cambian en `src/costos.py` |
+| 2. Datos, limpieza y EDA | Hecho en el notebook 01 (secciones 2 a 6) |
+| 3. Modelado | Pendiente. Arranca de `data/processed/train.csv` con `datos.cargar_train()` |
+| 4. Evaluación | Pendiente. `test.csv` se abre una sola vez, aquí |
+| 5. Despliegue y límites | Pendiente |
+
+Para empezar el modelado, leer las secciones 6 a 8 del notebook 01: el resumen de hallazgos con la
+decisión que cambia cada uno, qué archivos y funciones quedan listos (`src/datos.py`, `src/costos.py`)
+y qué quedó abierto a propósito para modelado (cómo entran las `PAY_*`, variables candidatas, con o
+sin `SEX` y `MARRIAGE`, calibración antes de aplicar los umbrales).
