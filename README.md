@@ -71,10 +71,14 @@ nuestros y no cifras del banco.
 │   └── bitacora.md   # colaboración con AI: qué se preguntó, usó, verificó y descartó
 ├── figures/          # gráficas para las diapositivas
 ├── notebooks/
-│   └── 01_framing_datos_eda.ipynb   # fase 1: framing, costos, limpieza, split y EDA
+│   ├── 01_framing_datos_eda.ipynb   # fase 1: framing, costos, limpieza, split y EDA
+│   ├── 02_modelado.ipynb            # fase 2: comparación de modelos, perillas y modelo elegido
+│   └── 03_evaluacion_despliegue.ipynb  # fase 3: prueba (una vez), dónde falla, despliegue y límites
 ├── src/
 │   ├── datos.py      # carga, limpieza y split (las mismas reglas para todas las fases)
-│   └── costos.py     # supuestos de costo, umbrales y costo de una política
+│   ├── costos.py     # supuestos de costo, umbrales y costo de una política
+│   ├── variables.py  # variables candidatas que salieron del EDA
+│   └── modelado.py   # logística, árbol, bosque, boosting y el modelo elegido
 ├── requirements.txt
 └── README.md
 ```
@@ -102,9 +106,9 @@ Para regenerar los datos procesados y las figuras de la fase 1, abrir
 |---|---|
 | 1. Framing y costos de los errores | Hecho en el notebook 01 (sección 1). Los costos son supuestos y se cambian en `src/costos.py` |
 | 2. Datos, limpieza y EDA | Hecho en el notebook 01 (secciones 2 a 6) |
-| 3. Modelado | Pendiente. Arranca de `data/processed/train.csv` con `datos.cargar_train()` |
-| 4. Evaluación | Pendiente. `test.csv` se abre una sola vez, aquí |
-| 5. Despliegue y límites | Pendiente |
+| 3. Modelado | Hecho en el notebook 02. Modelo elegido: logística regularizada (`modelado.modelo_final`) |
+| 4. Evaluación | Hecho en el notebook 03. La prueba se abrió una sola vez: costo 0.740 por cliente, IC 95 % de 0.712 a 0.767, contra 0.853 de la vara. Ahorro 13.3 % |
+| 5. Despliegue y límites | Hechos en el notebook 03 (secciones 6 a 8) |
 
 Para empezar el modelado, leer las secciones 6 a 8 del notebook 01: el resumen de hallazgos con la
 decisión que cambia cada uno, qué archivos y funciones quedan listos (`src/datos.py`, `src/costos.py`)

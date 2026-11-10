@@ -1,7 +1,7 @@
 # Bitácora de colaboración con AI
 
 > Proyecto final · Ciencia de Datos, Sección A · Actualizado: 09/11/2026
-> Fase 1 anotada (notebook `01_framing_datos_eda.ipynb`). Modelado, evaluación y diapositivas se agregan abajo, con el mismo formato.
+> Fases 1, 2 y 3 anotadas (notebooks `01`, `02` y `03`). Modelado y evaluación final registrados.
 
 La AI propuso opciones. La decisión y la verificación son del equipo. Cada entrada dice qué se preguntó, qué se usó, qué se verificó y qué se descartó.
 
@@ -33,11 +33,40 @@ La AI propuso opciones. La decisión y la verificación son del equipo. Cada ent
 - **Qué se verificó:** Los índices de train y test no se cruzan, 24,000 + 6,000 = 30,000, y la tasa de impago queda en 0.221 en los dos. Sección 4, corrida el 09/11/2026.
 - **Qué se descartó:** Explorar los 30,000 juntos, o mirar la prueba para elegir umbrales o el modelo.
 
+## 5. Variables de atraso y uso de la línea
+
+- **Qué se preguntó:** ¿Cómo construyo variables para contar los meses con atraso, el atraso reciente y el uso de la línea sin fugar información del conjunto de prueba?
+- **Qué se usó:** Tres variables en `src/variables.py` calculadas fila por fila: `MESES_ATRASO` (meses con `PAY` mayor a 0), `ATRASO_ULTIMO` (septiembre) y `USO_LINEA` (factura de septiembre entre límite).
+- **Qué se verificó:** Que al combinarlas con `PAY_*` el costo baja a 0.725 en los simulacros (con `PAY_*` como número bajaban de 0.760 a 0.741). Notebook 02, sección 2.
+- **Qué se descartó:** Calcular agregaciones globales o promedios del grupo. Se calculan cliente por cliente para evitar fuga de datos.
+
+## 6. Pesos por clase y calibración
+
+- **Qué se preguntó:** ¿Conviene ponerle `class_weight="balanced"` a la logística por el desbalance de clases, o eso arruina las probabilidades para los umbrales de costo?
+- **Qué se usó:** Regresión logística sin pesos por clase (`class_weight=None`). La asimetría de costos (5 a 1) ya está contemplada en los umbrales de decisión (0.12 y 0.35).
+- **Qué se verificó:** Que con pesos la probabilidad media predicha se infla de 0.22 a 0.43 (como si la mitad impagara) y el costo con los umbrales sube a 0.868, peor que la vara de 0.853. Con calibración isotónica vuelve a 0.723, igual que sin pesos (0.724). Curva f10, Notebook 02, sección 4.
+- **Qué se descartó:** Usar pesos balanceados más calibración. Añade pasos extra para terminar en el mismo resultado que ya da la logística natural.
+
+## 7. Comparación de modelos: logística frente a ensambles
+
+- **Qué se preguntó:** ¿Cómo armo una comparación justa bajo las mismas 5 particiones entre la logística y modelos más complejos como Random Forest y HistGradientBoosting usando la métrica de costo?
+- **Qué se usó:** Pipeline con 5 simulacros idénticos para todos. Costos promedio: bosque 0.720, boosting 0.721, logística regularizada (`C = 0.03`) 0.724, árbol 0.731 (vara: 0.853).
+- **Qué se verificó:** Que el boosting gana por solo 0.003 por cliente (0.4 % del costo, diez veces menor al ruido de la prueba). Además, la logística demostró ser muy estable ante `C` entre 0.01 y 10. Notebook 02, secciones 3 a 7.
+- **Qué se descartó:** Boosting y Random Forest. El equipo eligió la regresión logística porque el banco necesita justificar con pesos directos por qué le baja el límite a un cliente, y no vale la pena perder esa explicabilidad por un 0.4 % marginal.
+
+## 8. Evaluación en la prueba y cálculo con bootstrap
+
+- **Qué se preguntó:** ¿Cómo armo la función de evaluación en `test.csv` para abrirlo una sola vez con un interruptor, y cómo calculo el intervalo de confianza del costo con bootstrap?
+- **Qué se usó:** `ABRIR_PRUEBA = True` en el notebook 03, corrido una sola vez sobre los 6,000 clientes de prueba (1,327 impagos) con 2,000 remuestreos bootstrap al 95 % de confianza.
+- **Qué se verificó:** Costo en prueba de 0.740 (IC 95 %: [0.712, 0.767]), superando la vara de 0.853 con un ahorro del 13.3 % (IC 95 %: [11.5 %, 15.1 %]). El 0.725 de los simulacros quedó dentro del intervalo. Notebook 03, secciones 2 a 4.
+- **Qué se descartó:** Ajustar hiperparámetros o umbrales después de ver el examen. El número final que se reporta es 0.740.
+
 ## Cómo seguir
 
-Cada decisión nueva va en una sección como las de arriba, con las mismas cuatro líneas. `data/processed/test.csv` no se abre hasta el número final. Lo que la fase 1 dejó abierto para modelado:
+Cada decisión nueva va en una sección como las de arriba, con las mismas cuatro líneas. `data/processed/test.csv` ya se abrió en la entrada 8. No se vuelve a correr para ajustar nada. El modelado y la evaluación cerraron los puntos que la fase 1 había dejado abiertos:
 
-- Si `PAY_*` entra como número o como categoría.
-- Si meses con atraso, atraso en el último mes, uso de la línea e `INACTIVO` bajan el costo en validación cruzada.
-- Modelo con y sin `SEX` y `MARRIAGE`.
-- Calibrar las probabilidades antes de usar los umbrales 0.12 y 0.35.
+- `PAY_*` entra como categoría (captura la no linealidad principal).
+- Las variables de atraso y uso de línea se calculan fila por fila y ayudan al modelo.
+- `SEX` y `MARRIAGE` se retiraron por criterio ético y legal, con un impacto de costo de solo 0.2 %.
+- Las probabilidades se usan sin pesos por clase (bien calibradas al prior real) con los umbrales teóricos 0.12 y 0.35.
+- La evaluación final confirmó un ahorro del 13.3 % (IC 95 %: 11.5 %–15.1 %) frente a la política base.
