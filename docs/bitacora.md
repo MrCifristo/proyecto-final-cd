@@ -1,7 +1,7 @@
 # Bitácora de colaboración con AI
 
 > Proyecto final · Ciencia de Datos, Sección A · Actualizado: 09/11/2026
-> Fases 1, 2 y 3 anotadas (notebooks `01`, `02` y `03`). Modelado y evaluación final registrados.
+> Fases 1, 2 y 3 anotadas (notebooks `01`, `02` y `03`). Modelado, evaluación final y revisión de los costos registrados.
 
 La AI propuso opciones. La decisión y la verificación son del equipo. Cada entrada dice qué se preguntó, qué se usó, qué se verificó y qué se descartó.
 
@@ -60,6 +60,13 @@ La AI propuso opciones. La decisión y la verificación son del equipo. Cada ent
 - **Qué se usó:** `ABRIR_PRUEBA = True` en el notebook 03, corrido una sola vez sobre los 6,000 clientes de prueba (1,327 impagos) con 2,000 remuestreos bootstrap al 95 % de confianza.
 - **Qué se verificó:** Costo en prueba de 0.740 (IC 95 %: [0.712, 0.767]), superando la vara de 0.853 con un ahorro del 13.3 % (IC 95 %: [11.5 %, 15.1 %]). El 0.725 de los simulacros quedó dentro del intervalo. Notebook 03, secciones 2 a 4.
 - **Qué se descartó:** Ajustar hiperparámetros o umbrales después de ver el examen. El número final que se reporta es 0.740.
+
+## 9. Costos de los errores: ¿nos quedamos con los de la fase 1?
+
+- **Qué se preguntó:** Milton propuso los costos iniciales (impago no detectado 5, reducir a quien paga 1, revisar 0.3, el analista detecta el 50 %, reducir deja el 30 % de la pérdida). Después de abrir la prueba le preguntamos a la AI cómo evaluar si esos supuestos se sostenían o si convenía cambiarlos.
+- **Qué se usó:** Un análisis de sensibilidad con las probabilidades de los simulacros del modelo final (solo entrenamiento): 18 escenarios moviendo un supuesto a la vez y una malla de 270 combinaciones. Para cada una, los umbrales que les corresponden, el ahorro, el % a revisión y cuánto se pierde por seguir con 0.12 y 0.35. Notebook 02, sección 12.
+- **Qué se verificó:** Que con los umbrales recalculados el modelo nunca queda claramente debajo de la vara (ahorro de −0.1 % a 32.7 %). Que no recalcularlos cuesta una mediana de 6.9 % más. Que el supuesto que más mueve la política es la revisión (cuánto cuesta y cuánto detecta el analista), no la razón 5 : 1. Y que esa razón coincide con la matriz de costos de German Credit (Statlog, UCI).
+- **Qué se descartó:** Cambiar los costos. La prueba ya se había abierto, y cambiarlos habría obligado a reevaluar en ella. Sin cifras del banco, unos costos nuevos serían igual de supuestos, y elegirlos por el ahorro que dan sería circular. Nos quedamos con los de la fase 1 (decisión de Milton y George) y dejamos escrito que, al desplegar, los umbrales se recalculan con los costos reales del banco.
 
 ## Cómo seguir
 

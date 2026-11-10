@@ -68,7 +68,8 @@ nuestros y no cifras del banco.
 ├── docs/
 │   ├── Enunciado.pdf
 │   ├── Propuesta.pdf # propuesta aprobada
-│   └── bitacora.md   # colaboración con AI: qué se preguntó, usó, verificó y descartó
+│   ├── bitacora.md   # colaboración con AI: qué se preguntó, usó, verificó y descartó
+│   └── diapositivas.pdf  # presentación final (15 diapositivas)
 ├── figures/          # gráficas para las diapositivas
 ├── notebooks/
 │   ├── 01_framing_datos_eda.ipynb   # fase 1: framing, costos, limpieza, split y EDA
@@ -97,10 +98,16 @@ pip install -r requirements.txt
 
 Los datos vienen incluidos en el repositorio, así que no hay que descargar nada aparte.
 
-Para regenerar los datos procesados y las figuras de la fase 1, abrir
-`notebooks/01_framing_datos_eda.ipynb` con el kernel de `.venv` y correr todo.
+Los tres notebooks se corren en orden, con el kernel de `.venv`, y reproducen los mismos números y
+figuras que están guardados (verificado el 09/11/2026 corriéndolos desde cero):
 
-## Estado y siguiente paso
+1. `01_framing_datos_eda.ipynb`: regenera `data/processed/` y las figuras f1 a f8.
+2. `02_modelado.ipynb`: usa solo `train.csv`. Tarda unos minutos por las rejillas del bosque y el boosting.
+3. `03_evaluacion_despliegue.ipynb`: **abre `test.csv`**. Con `ABRIR_PRUEBA = True` reproduce el
+   examen que ya se corrió una vez; no se usa para cambiar el modelo ni los umbrales. Con
+   `ABRIR_PRUEBA = False` corre un ensayo sobre el entrenamiento sin leer la prueba.
+
+## Estado
 
 | Parte | Estado |
 |---|---|
@@ -109,8 +116,9 @@ Para regenerar los datos procesados y las figuras de la fase 1, abrir
 | 3. Modelado | Hecho en el notebook 02. Modelo elegido: logística regularizada (`modelado.modelo_final`) |
 | 4. Evaluación | Hecho en el notebook 03. La prueba se abrió una sola vez: costo 0.740 por cliente, IC 95 % de 0.712 a 0.767, contra 0.853 de la vara. Ahorro 13.3 % |
 | 5. Despliegue y límites | Hechos en el notebook 03 (secciones 6 a 8) |
+| Diapositivas | `docs/diapositivas.pdf` |
 
-Para empezar el modelado, leer las secciones 6 a 8 del notebook 01: el resumen de hallazgos con la
-decisión que cambia cada uno, qué archivos y funciones quedan listos (`src/datos.py`, `src/costos.py`)
-y qué quedó abierto a propósito para modelado (cómo entran las `PAY_*`, variables candidatas, con o
-sin `SEX` y `MARRIAGE`, calibración antes de aplicar los umbrales).
+El orden de lectura es el de los notebooks. La sección 6 del 01 resume los hallazgos del EDA y la
+decisión que cambió cada uno; la sección 7 dice qué quedó abierto para modelado y cómo se resolvió en
+el 02. Las secciones 6 a 8 del 03 tienen la lectura final, el plan de despliegue y lo que no se puede
+concluir.
